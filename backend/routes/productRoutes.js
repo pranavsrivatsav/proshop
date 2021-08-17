@@ -1,5 +1,5 @@
 import express from 'express';
-import asyncHandler from 'express-async-handler'; //package to handle async-await errors
+import asyncHandler from 'express-async-handler'; // package to handle async-await errors
 
 import Product from '../models/productModel.js';
 
@@ -33,7 +33,8 @@ router.get(
     if (product) {
       res.json(product);
     } else {
-      res.status(404).json({ message: 'product not found' });
+      res.status(404);
+      throw new Error('Product not found');
     }
   })
 );
