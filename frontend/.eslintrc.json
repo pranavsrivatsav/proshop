@@ -13,11 +13,11 @@
   },
   "plugins": ["react", "prettier"],
   "rules": {
-    "prettier/prettier": "error",
+    "prettier/prettier": "warn",
     "react/react-in-jsx-scope": "off",
     "react/prop-types": "off",
     "no-unused-vars": "warn",
-    "spaced-line-comment": "always"
+    "spaced-comment": ["error", "always", { "exceptions": ["-", "+"] }]
   },
   "root": true
 }
