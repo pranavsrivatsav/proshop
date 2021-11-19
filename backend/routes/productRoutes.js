@@ -1,42 +1,16 @@
 import express from 'express';
-import asyncHandler from 'express-async-handler'; // package to handle async-await errors
-
-import Product from '../models/productModel.js';
+import {
+  getProducts,
+  getProductById,
+} from '../controllers/productController.js';
 
 const router = express.Router();
 
-// @desc Fetch all products
-// @route GET /api/products
-// @access public
-router.get(
-  '/',
-  asyncHandler(async (req, res) => {
-    const products = await Product.find();
-
-    if (products) {
-      res.json(products);
-    } else {
-      res.status(404);
-      throw new Error('Product not found');
-    }
-  })
-);
-
-// @desc Fetch a product by id
-// @route GET /api/products/:id
-// @access public
-router.get(
-  '/:id',
-  asyncHandler(async (req, res) => {
-    const product = await Product.findById(req.params.id);
-
-    if (product) {
-      res.json(product);
-    } else {
-      res.status(404);
-      throw new Error('Product not found');
-    }
-  })
-);
+/*
+router.route(<route>).<request method>(<handler function>)
+passes the req,res objects to the handler function
+*/
+router.get('/', getProducts);
+router.get('/:id', getProductById);
 
 export default router;

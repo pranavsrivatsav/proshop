@@ -2,13 +2,17 @@ import express from 'express';
 import dotenv from 'dotenv';
 import colors from 'colors';
 
-//.js extension needs to be mentioned when importing from local files in native nodejs programs
+// .js extension needs to be mentioned when importing from local files in native nodejs programs
 import connectDB from './config/db.js';
 import { notfound, errorHandler } from './middleware/errorMiddleware.js';
 import productRoutes from './routes/productRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 
 const PORT = process.env.PORT || 5000;
+
 const app = express();
+app.use(express.json()); // accept JSON data into the request body
+
 dotenv.config();
 connectDB();
 
@@ -16,10 +20,11 @@ app.get('/', (req, res) => {
   res.send('API is running...');
 });
 
-//Assign route handler for product routes
+// Assign route handlers
 app.use('/api/products', productRoutes);
+app.use('/api/users', userRoutes);
 
-//Attaching error handling middleware
+// Attaching error handling middleware
 
 /*
   Attach notFound middleware after all the route handlers,
