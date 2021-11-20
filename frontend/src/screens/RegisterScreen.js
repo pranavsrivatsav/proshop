@@ -17,15 +17,16 @@ const RegisterScreen = ({ location, history }) => {
 
   const dispatch = useDispatch();
   const userRegister = useSelector((state) => state.userRegister);
-  const { loading, error, userInfo } = userRegister;
+  const loggedIn = useSelector((state) => state.userLogin.loggedIn);
+  const { loading, error } = userRegister;
 
   const redirect = location.search ? location.search.split('=')[1] : '/';
 
   useEffect(() => {
-    if (email && userInfo.email === email) {
+    if (loggedIn) {
       history.push(redirect);
     }
-  }, [userInfo]);
+  }, [loggedIn]);
 
   const submitHandler = (e) => {
     e.preventDefault();

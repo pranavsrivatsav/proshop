@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import Message from '../components/Message';
 import Loader from '../components/Loader';
-import { fetchUserDetails, UpdateUserProfile } from '../actions/userActions';
+import { UpdateUserProfile } from '../actions/userActions';
 
 const ProfileScreen = ({ history }) => {
   const [name, setName] = useState('');
@@ -14,25 +14,18 @@ const ProfileScreen = ({ history }) => {
   const [message, setMessage] = useState(null);
 
   const dispatch = useDispatch();
-  const userDetails = useSelector((state) => state.userDetails);
-  const { loading, error, user } = userDetails;
-
-  const userLogin = useSelector((state) => state.userLogin);
-  const { userInfo } = userLogin;
-
-  const userUpdates = useSelector((state) => state.userUpdateProfile);
-  const { success } = userUpdates;
+  const loggedIn = useSelector((state) => state.userLogin.loggedIn);
+  const user = useSelector((state) => state.user);
+  const { details: userDetails, loading, error, success } = user;
 
   useEffect(() => {
-    if (!userInfo) {
+    if (!loggedIn) {
       history.push('/login?redirect=profile');
-    } else if (user) {
-      setName(user.name);
-      setEmail(user.email);
     } else {
-      dispatch(fetchUserDetails());
+      setName(userDetails.name);
+      setEmail(userDetails.email);
     }
-  }, [userInfo, user]);
+  }, [loggedIn]);
 
   const submitHandler = (e) => {
     e.preventDefault();

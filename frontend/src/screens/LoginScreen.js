@@ -14,12 +14,12 @@ const LoginScreen = ({ location, history }) => {
 
   const dispatch = useDispatch();
   const userLogin = useSelector((state) => state.userLogin);
-  let { loading, error, userInfo } = userLogin;
+  let { loading, error, loggedIn } = userLogin;
 
   const redirect = location.search ? location.search.split('=')[1] : '/';
 
   useEffect(() => {
-    if (userInfo) {
+    if (loggedIn) {
       history.push(redirect);
     }
   });
