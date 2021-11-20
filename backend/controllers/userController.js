@@ -6,23 +6,32 @@ import generateToken from '../utils/generateToken.js';
 // @desc Auth user & get Token
 // @route POST /api/users/login
 // @access public
-const authUser = asyncHandler(async (req, res) => {
+const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
   const user = await User.findOne({ email });
 
   if (user && (await user.matchPassword(password))) {
-    res.json({
+    const token = generateToken(user._id);
+
+    res.cookie('token', token, { httpOnly: true }).json({
       _id: user._id,
       name: user.name,
       email: user.email,
       isAdmin: user.isAdmin,
-      token: generateToken(user._id),
     });
   } else {
     res.status(401);
     throw new Error('Invalid Email or Password');
   }
+});
+
+// @desc Auth user & get Token
+// @route POST /api/users/login
+// @access private
+const logoutUser = asyncHandler(async (req, res) => {
+  res.clearCookie('token');
+  res.status(200).send();
 });
 
 // @desc Create a new user
@@ -45,12 +54,13 @@ const registerUser = asyncHandler(async (req, res) => {
   });
 
   if (user) {
-    res.status(201).json({
+    const token = generateToken(user._id);
+
+    res.status(201).cookie('token', token, { httpOnly: true }).json({
       _id: user._id,
       name: user.name,
       email: user.email,
       isAdmin: user.isAdmin,
-      token: generateToken(user._id),
     });
   } else {
     res.status(400);
@@ -93,4 +103,10 @@ const UpdateUserProfile = asyncHandler(async (req, res) => {
   });
 });
 
-export { authUser, registerUser, getUserProfile, UpdateUserProfile };
+export {
+  loginUser,
+  logoutUser,
+  registerUser,
+  getUserProfile,
+  UpdateUserProfile,
+};

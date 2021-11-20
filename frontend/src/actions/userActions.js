@@ -1,4 +1,5 @@
-import axios from 'axios';
+import axios from '../axios';
+import history from '../history';
 
 import {
   USER_DETAILS_FAIL,
@@ -54,11 +55,16 @@ export const login = (email, password) => async (dispatch) => {
   }
 };
 
-export const logout = () => (dispatch) => {
+export const logout = () => async (dispatch) => {
+  await axios.get('/api/users/logout');
+
   localStorage.removeItem('userInfo');
   localStorage.removeItem('cartItems');
+
   dispatch({ type: USER_DETAILS_REMOVE });
   dispatch({ type: USER_LOGOUT });
+
+  history.push('/login');
 };
 
 export const register = (name, email, password) => async (dispatch) => {
@@ -104,35 +110,24 @@ export const register = (name, email, password) => async (dispatch) => {
   }
 };
 
-export const UpdateUserProfile = (user) => async (dispatch, getState) => {
+export const UpdateUserProfile = (user) => async (dispatch) => {
   try {
     dispatch({
       type: USER_DETAILS_UPDATE,
     });
 
-    const token = getState().user.details.token;
+    const { data } = await axios.put('/api/users/profile', user);
 
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
+    dispatch({
+      type: USER_DETAILS_LOAD,
+      payload: data,
+    });
 
-    if (token) {
-      const { data } = await axios.put('/api/users/profile', user, config);
-      console.log('updated data:', data);
+    dispatch({
+      type: USER_DETAILS_SUCCESS,
+    });
 
-      dispatch({
-        type: USER_DETAILS_LOAD,
-        payload: data,
-      });
-
-      dispatch({
-        type: USER_DETAILS_SUCCESS,
-      });
-
-      localStorage.setItem('userInfo', JSON.stringify(data));
-    }
+    localStorage.setItem('userInfo', JSON.stringify(data));
   } catch (error) {
     dispatch({
       type: USER_DETAILS_FAIL,
@@ -144,35 +139,31 @@ export const UpdateUserProfile = (user) => async (dispatch, getState) => {
   }
 };
 
-// export const fetchUserDetails = () => async (dispatch, getState) => {
-//   try {
-//     dispatch({
-//       type: USER_DETAILS_REQUEST,
-//     });
+export const fetchUserDetails =
+  (redirect = '/') =>
+  async (dispatch) => {
+    try {
+      dispatch({
+        type: USER_DETAILS_UPDATE,
+      });
 
-//     const { userInfo } = getState().userLogin;
+      const { data } = await axios.get('/api/users/profile');
 
-//     const config = {
-//       headers: {
-//         Authorization: `Bearer ${userInfo.token}`,
-//       },
-//     };
-
-//     if (userInfo) {
-//       const { data } = await axios.get('/api/users/profile', config);
-//       console.log('fetched data:', data);
-//       dispatch({
-//         type: USER_DETAILS_SUCCESS,
-//         payload: data,
-//       });
-//     }
-//   } catch (error) {
-//     dispatch({
-//       type: USER_DETAILS_FAIL,
-//       payload:
-//         error.response && error.response.data.message
-//           ? error.response.data.message
-//           : error.response.data,
-//     });
-//   }
-// };
+      dispatch({
+        type: USER_DETAILS_LOAD,
+        payload: data,
+      });
+    } catch (error) {
+      if (error.response.status === 401 && redirect) {
+        history.push(`/login?redirect=${redirect}`);
+      } else {
+        dispatch({
+          type: USER_DETAILS_FAIL,
+          payload:
+            error.response && error.response.data.message
+              ? error.response.data.message
+              : error.response.data,
+        });
+      }
+    }
+  };

@@ -4,9 +4,9 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import Message from '../components/Message';
 import Loader from '../components/Loader';
-import { UpdateUserProfile } from '../actions/userActions';
+import { fetchUserDetails, UpdateUserProfile } from '../actions/userActions';
 
-const ProfileScreen = ({ history }) => {
+const ProfileScreen = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -14,18 +14,19 @@ const ProfileScreen = ({ history }) => {
   const [message, setMessage] = useState(null);
 
   const dispatch = useDispatch();
-  const loggedIn = useSelector((state) => state.userLogin.loggedIn);
   const user = useSelector((state) => state.user);
   const { details: userDetails, loading, error, success } = user;
 
   useEffect(() => {
-    if (!loggedIn) {
-      history.push('/login?redirect=profile');
-    } else {
+    dispatch(fetchUserDetails('profile'));
+  }, []);
+
+  useEffect(() => {
+    if (userDetails) {
       setName(userDetails.name);
       setEmail(userDetails.email);
     }
-  }, [loggedIn]);
+  }, [userDetails]);
 
   const submitHandler = (e) => {
     e.preventDefault();

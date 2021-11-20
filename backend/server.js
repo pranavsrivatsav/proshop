@@ -1,6 +1,8 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import colors from 'colors';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
 // .js extension needs to be mentioned when importing from local files in native nodejs programs
 import connectDB from './config/db.js';
@@ -12,6 +14,8 @@ const PORT = process.env.PORT || 5000;
 
 const app = express();
 app.use(express.json()); // accept JSON data into the request body
+app.use(cors({ credentials: true, origin: process.env.FRONT_END_URL }));
+app.use(cookieParser());
 
 dotenv.config();
 connectDB();

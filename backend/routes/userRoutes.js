@@ -1,6 +1,7 @@
 import express from 'express';
 import {
-  authUser,
+  loginUser,
+  logoutUser,
   getUserProfile,
   registerUser,
   UpdateUserProfile,
@@ -13,8 +14,9 @@ const router = express.Router();
 router.route(<route>).<request method>(<handler function>)
 passes the req,res objects to the handler function
 */
-router.post('/login', authUser);
+router.post('/login', loginUser);
 router.post('/', registerUser);
+router.get('/logout', auth, logoutUser);
 router.get('/profile', auth, getUserProfile);
 router.put('/profile', auth, UpdateUserProfile);
 
