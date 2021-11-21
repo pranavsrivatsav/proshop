@@ -15,6 +15,7 @@ import { fetchProductDetails } from '../actions/productActions';
 import Rating from '../components/Rating';
 import Loader from '../components/Loader';
 import Message from '../components/Message';
+import { addToCart } from '../actions/cartActions';
 
 const ProductScreen = ({ match, history }) => {
   const [qty, setQty] = useState(1);
@@ -22,14 +23,24 @@ const ProductScreen = ({ match, history }) => {
   const dispatch = useDispatch();
 
   const productDetails = useSelector((state) => state.productDetails);
+  const cartItems = useSelector((state) => state.cart.cartItems);
+
   const { product, loading, error } = productDetails;
+  let isAddedToCart = cartItems.find(
+    (item) => item.product === match.params.id
+  );
 
   useEffect(() => {
     dispatch(fetchProductDetails(match.params.id));
   }, []);
 
   const addToCartHandler = () => {
-    history.push(`/cart/${match.params.id}?qty=${qty}`);
+    if (!isAddedToCart) {
+      isAddedToCart = true;
+      dispatch(addToCart(match.params.id, qty));
+    } else {
+      history.push('/cart');
+    }
   };
 
   const renderProductDetails = () => {
@@ -72,7 +83,7 @@ const ProductScreen = ({ match, history }) => {
                 </Row>
               </ListGroup.Item>
               {product.countInStock > 0 && (
-                <ListGroup.Item>
+                <ListGroup.Item hidden={isAddedToCart}>
                   <Row>
                     <Col>Qty</Col>
                     <Col>
@@ -80,7 +91,11 @@ const ProductScreen = ({ match, history }) => {
                         as="select"
                         value={qty}
                         onChange={(e) => setQty(e.target.value)}>
-                        {[...Array(product.countInStock).keys()].map((x) => (
+                        {[
+                          ...Array(
+                            Math.min(product.countInStock, product.maxQty)
+                          ).keys(),
+                        ].map((x) => (
                           <option key={x + 1} value={x + 1}>
                             {x + 1}
                           </option>
@@ -95,9 +110,10 @@ const ProductScreen = ({ match, history }) => {
                 <Button
                   onClick={addToCartHandler}
                   className="btn-block"
+                  variant={isAddedToCart && 'success'}
                   type="button"
                   disabled={product.countInStock === 0}>
-                  Add to Cart
+                  {isAddedToCart ? 'Go to Cart' : 'Add to Cart'}
                 </Button>
               </ListGroup.Item>
             </ListGroup>

@@ -67,6 +67,11 @@ const productSchema = new Schema(
       required: true,
       default: 0,
     },
+    maxQty: {
+      type: Number,
+      required: true,
+      default: 5,
+    },
   },
   {
     timestamps: true,
