@@ -1,26 +1,20 @@
 import axios from '../axios';
 import history from '../history';
+import toast from 'react-hot-toast';
+
+import toastMessage from '../utils/toastMessage';
 
 import {
-  USER_DETAILS_FAIL,
   USER_DETAILS_LOAD,
   USER_DETAILS_REMOVE,
-  USER_DETAILS_SUCCESS,
-  USER_DETAILS_UPDATE,
-  USER_LOGIN_FAIL,
-  USER_LOGIN_REQUEST,
-  USER_LOGIN_SUCCESS,
+  USER_LOGIN,
   USER_LOGOUT,
-  USER_REGISTER_FAIL,
-  USER_REGISTER_REQUEST,
-  USER_REGISTER_SUCCESS,
+  USER_REGISTER,
 } from '../constants/userConstants';
 
 export const login = (email, password) => async (dispatch) => {
   try {
-    dispatch({
-      type: USER_LOGIN_REQUEST,
-    });
+    const toastId = toastMessage('Signing in...', 'loading');
 
     const config = {
       headers: {
@@ -35,7 +29,7 @@ export const login = (email, password) => async (dispatch) => {
     );
 
     dispatch({
-      type: USER_LOGIN_SUCCESS,
+      type: USER_LOGIN,
     });
 
     dispatch({
@@ -43,19 +37,23 @@ export const login = (email, password) => async (dispatch) => {
       payload: data,
     });
 
+    toast.dismiss(toastId);
+    toastMessage('Signed in', 'success');
     localStorage.setItem('userInfo', JSON.stringify(data));
   } catch (error) {
-    dispatch({
-      type: USER_LOGIN_FAIL,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.response.data,
-    });
+    toast.dismiss();
+    const errorMessage =
+      error.response && error.response.data.message
+        ? error.response.data.message
+        : error.response.data;
+
+    toastMessage(errorMessage, 'error');
   }
 };
 
 export const logout = () => async (dispatch) => {
+  const toastId = toastMessage('Logging out...', 'loading');
+  console.log(toastId);
   await axios.get('/api/users/logout');
 
   localStorage.removeItem('userInfo');
@@ -64,14 +62,16 @@ export const logout = () => async (dispatch) => {
   dispatch({ type: USER_DETAILS_REMOVE });
   dispatch({ type: USER_LOGOUT });
 
+  toast.dismiss(toastId);
+  toastMessage('Logged out', 'success');
+
   history.push('/login');
 };
 
 export const register = (name, email, password) => async (dispatch) => {
   try {
-    dispatch({
-      type: USER_REGISTER_REQUEST,
-    });
+    const toastId = toastMessage('Signing up...', 'loading');
+    console.log(toastId);
 
     const config = {
       headers: {
@@ -86,11 +86,7 @@ export const register = (name, email, password) => async (dispatch) => {
     );
 
     dispatch({
-      type: USER_REGISTER_SUCCESS,
-    });
-
-    dispatch({
-      type: USER_LOGIN_SUCCESS,
+      type: USER_REGISTER,
     });
 
     dispatch({
@@ -98,23 +94,22 @@ export const register = (name, email, password) => async (dispatch) => {
       payload: data,
     });
 
+    toast.dismiss(toastId);
+
     localStorage.setItem('userInfo', JSON.stringify(data));
   } catch (error) {
-    dispatch({
-      type: USER_REGISTER_FAIL,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.response.data,
-    });
+    const errorMessage =
+      error.response && error.response.data.message
+        ? error.response.data.message
+        : error.response.data;
+
+    toastMessage(errorMessage, 'error');
   }
 };
 
 export const UpdateUserProfile = (user) => async (dispatch) => {
   try {
-    dispatch({
-      type: USER_DETAILS_UPDATE,
-    });
+    const toastId = toastMessage('Updating Profile...', 'loading');
 
     const { data } = await axios.put('/api/users/profile', user);
 
@@ -123,19 +118,16 @@ export const UpdateUserProfile = (user) => async (dispatch) => {
       payload: data,
     });
 
-    dispatch({
-      type: USER_DETAILS_SUCCESS,
-    });
-
+    toast.dismiss(toastId);
+    toastMessage('Profile updated', 'success');
     localStorage.setItem('userInfo', JSON.stringify(data));
   } catch (error) {
-    dispatch({
-      type: USER_DETAILS_FAIL,
-      payload:
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.response.data,
-    });
+    const errorMessage =
+      error.response && error.response.data.message
+        ? error.response.data.message
+        : error.response.data;
+
+    toastMessage(errorMessage, 'error');
   }
 };
 
@@ -143,10 +135,6 @@ export const fetchUserDetails =
   (redirect = '/') =>
   async (dispatch) => {
     try {
-      dispatch({
-        type: USER_DETAILS_UPDATE,
-      });
-
       const { data } = await axios.get('/api/users/profile');
 
       dispatch({
@@ -157,13 +145,12 @@ export const fetchUserDetails =
       if (error.response.status === 401 && redirect) {
         history.push(`/login?redirect=${redirect}`);
       } else {
-        dispatch({
-          type: USER_DETAILS_FAIL,
-          payload:
-            error.response && error.response.data.message
-              ? error.response.data.message
-              : error.response.data,
-        });
+        const errorMessage =
+          error.response && error.response.data.message
+            ? error.response.data.message
+            : error.response.data;
+
+        toastMessage(errorMessage, 'error');
       }
     }
   };

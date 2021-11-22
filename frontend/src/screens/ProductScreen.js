@@ -14,7 +14,6 @@ import {
 import { fetchProductDetails } from '../actions/productActions';
 import Rating from '../components/Rating';
 import Loader from '../components/Loader';
-import Message from '../components/Message';
 import { addToCart } from '../actions/cartActions';
 
 const ProductScreen = ({ match, history }) => {
@@ -25,7 +24,7 @@ const ProductScreen = ({ match, history }) => {
   const productDetails = useSelector((state) => state.productDetails);
   const cartItems = useSelector((state) => state.cart.cartItems);
 
-  const { product, loading, error } = productDetails;
+  const { product } = productDetails;
   let isAddedToCart = cartItems.find(
     (item) => item.product === match.params.id
   );
@@ -127,13 +126,7 @@ const ProductScreen = ({ match, history }) => {
       <Link to="/" className="btn btn-light my-3">
         Go Back
       </Link>
-      {loading ? (
-        <Loader />
-      ) : error ? (
-        <Message variant="danger">{error}</Message>
-      ) : (
-        renderProductDetails()
-      )}
+      {product._id !== match.params.id ? <Loader /> : renderProductDetails()}
     </>
   );
 };

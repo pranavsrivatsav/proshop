@@ -12,7 +12,7 @@ const Header = () => {
   const userDetails = useSelector((state) => state.user.details);
 
   useEffect(() => {
-    dispatch(fetchUserDetails(null));
+    dispatch(fetchUserDetails());
   }, []);
 
   const logoutHandler = () => {

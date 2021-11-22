@@ -12,22 +12,17 @@ import {
 } from 'react-bootstrap';
 
 import Message from '../components/Message';
-import Loader from '../components/Loader';
 import { fetchCart, removeFromCart, updateCart } from '../actions/cartActions';
 
 const CartScreen = ({ history }) => {
   const dispatch = useDispatch();
 
   const cart = useSelector((state) => state.cart);
-  const { cartItems, loading, error } = cart;
+  const { cartItems, reload } = cart;
 
   useEffect(() => {
-    if (error) {
-      setTimeout(() => {}, 2000);
-    }
-
     dispatch(fetchCart());
-  }, [error]);
+  }, [reload]);
 
   const removeFromCartHandler = (id) => {
     dispatch(removeFromCart(id));
@@ -41,8 +36,6 @@ const CartScreen = ({ history }) => {
     <Row>
       <Col md={8}>
         <h1>Shopping Cart</h1>
-        {error && <Message>{error}. Cart refreshed</Message>}
-        {loading && <Loader />}
         {cartItems.length === 0 ? (
           <Message>
             Your cart is empty <Link to="/">Go Back</Link>

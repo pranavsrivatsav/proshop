@@ -1,6 +1,7 @@
 import React from 'react';
 import { Container } from 'react-bootstrap';
 import { Router, Route } from 'react-router-dom';
+import { Toaster } from 'react-hot-toast';
 import history from './history';
 
 import Header from './components/Header';
@@ -27,6 +28,12 @@ const App = () => {
         </Container>
       </main>
       <Footer />
+      <Toaster
+        containerStyle={{
+          position: 'absolute',
+          bottom: '15%',
+        }}
+      />
     </Router>
   );
 };

@@ -11,7 +11,6 @@ import { Row, Col } from 'react-bootstrap';
 
 import Product from '../components/Product';
 import { fetchProducts } from '../actions/productActions';
-import Message from '../components/Message';
 import Loader from '../components/Loader';
 
 const HomeScreen = () => {
@@ -20,7 +19,7 @@ const HomeScreen = () => {
 
   // selecting the productsList part from redux state
   const productList = useSelector((state) => state.productList);
-  const { products, loading, error } = productList;
+  const { products } = productList;
 
   // Fetch products on initial load
   useEffect(() => {
@@ -43,14 +42,7 @@ const HomeScreen = () => {
   return (
     <>
       <h1>Latest Products</h1>
-      {/* Loading spinner (or) error message (or) products displayed on screen based on the state */}
-      {loading ? (
-        <Loader />
-      ) : error ? (
-        <Message variant="danger">{error}</Message>
-      ) : (
-        renderProducts()
-      )}
+      {products.length === 0 ? <Loader /> : renderProducts()}
     </>
   );
 };
