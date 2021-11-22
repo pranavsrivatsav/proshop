@@ -10,8 +10,7 @@ const fetchCart = asyncHandler(async (req, res) => {
   const cart = await Cart.findOne({ user: req.user._id });
 
   if (!cart) res.json({});
-
-  res.json(cart.cartItems);
+  res.json(await cart.getCartItems());
 });
 
 // @desc Add to cart
@@ -46,7 +45,7 @@ const addToCart = asyncHandler(async (req, res) => {
     await cart.save();
   }
 
-  res.status(200).json(cart.cartItems);
+  res.json(await cart.getCartItems());
 });
 
 // @desc Update cart
@@ -65,14 +64,14 @@ const updateCart = asyncHandler(async (req, res) => {
 
   if (!cartItem) {
     res.status(400);
-    throw new Error('Bad request');
+    throw new Error('Item does not exist in the cart.');
+  } else {
+    cartItem.qty = qty;
   }
-
-  cartItem.qty = qty;
 
   await cart.save();
 
-  res.status(200).json(cart.cartItems);
+  res.send();
 });
 
 // @desc Remove from cart / Remove all items from cart
@@ -95,7 +94,7 @@ const removeCart = asyncHandler(async (req, res) => {
 
   await cart.save();
 
-  res.status(200).json(cart.cartItems);
+  res.send();
 });
 
 export { addToCart, fetchCart, updateCart, removeCart };

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import {
@@ -12,13 +12,22 @@ import {
 } from 'react-bootstrap';
 
 import Message from '../components/Message';
-import { addToCart, removeFromCart } from '../actions/cartActions';
+import Loader from '../components/Loader';
+import { fetchCart, removeFromCart, updateCart } from '../actions/cartActions';
 
 const CartScreen = ({ history }) => {
   const dispatch = useDispatch();
 
   const cart = useSelector((state) => state.cart);
-  const { cartItems } = cart;
+  const { cartItems, loading, error } = cart;
+
+  useEffect(() => {
+    if (error) {
+      setTimeout(() => {}, 2000);
+    }
+
+    dispatch(fetchCart());
+  }, [error]);
 
   const removeFromCartHandler = (id) => {
     dispatch(removeFromCart(id));
@@ -32,6 +41,8 @@ const CartScreen = ({ history }) => {
     <Row>
       <Col md={8}>
         <h1>Shopping Cart</h1>
+        {error && <Message>{error}. Cart refreshed</Message>}
+        {loading && <Loader />}
         {cartItems.length === 0 ? (
           <Message>
             Your cart is empty <Link to="/">Go Back</Link>
@@ -60,10 +71,10 @@ const CartScreen = ({ history }) => {
                       value={cartItem.qty}
                       onChange={(e) =>
                         dispatch(
-                          addToCart(cartItem.product, Number(e.target.value))
+                          updateCart(cartItem.product, Number(e.target.value))
                         )
                       }>
-                      {[...Array(cartItem.countInStock).keys()].map((x) => (
+                      {[...Array(cartItem.maxQty).keys()].map((x) => (
                         <option key={x + 1} value={x + 1}>
                           {x + 1}
                         </option>

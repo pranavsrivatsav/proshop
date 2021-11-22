@@ -38,9 +38,8 @@ const ProductScreen = ({ match, history }) => {
     if (!isAddedToCart) {
       isAddedToCart = true;
       dispatch(addToCart(match.params.id, qty));
-    } else {
-      history.push('/cart');
     }
+    history.push('/cart?tracker=product');
   };
 
   const renderProductDetails = () => {
