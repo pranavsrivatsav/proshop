@@ -11,6 +11,11 @@ const loginUser = asyncHandler(async (req, res) => {
 
   const user = await User.findOne({ email });
 
+  if (!user) {
+    res.status(400);
+    throw new Error('Account does not exist');
+  }
+
   if (user && (await user.matchPassword(password))) {
     const token = generateToken(user._id);
 

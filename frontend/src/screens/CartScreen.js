@@ -29,7 +29,7 @@ const CartScreen = ({ history }) => {
   };
 
   const checkoutHandler = () => {
-    history.push('/login?redirect=shipping');
+    history.push('/auth?redirect=shipping');
   };
 
   return (
@@ -42,7 +42,7 @@ const CartScreen = ({ history }) => {
           </Message>
         ) : (
           <ListGroup variant="flush">
-            {cartItems.map((cartItem) => (
+            {cartItems.map((cartItem, cartIndex) => (
               <ListGroup.Item key={cartItem.product}>
                 <Row>
                   <Col md={2}>
@@ -64,7 +64,14 @@ const CartScreen = ({ history }) => {
                       value={cartItem.qty}
                       onChange={(e) =>
                         dispatch(
-                          updateCart(cartItem.product, Number(e.target.value))
+                          updateCart(
+                            {
+                              product: cartItem.product,
+                              cartIndex: cartIndex,
+                              name: cartItem.name,
+                            },
+                            Number(e.target.value)
+                          )
                         )
                       }>
                       {[...Array(cartItem.maxQty).keys()].map((x) => (
@@ -78,7 +85,13 @@ const CartScreen = ({ history }) => {
                     <Button
                       type="button"
                       variant="light"
-                      onClick={() => removeFromCartHandler(cartItem.product)}>
+                      onClick={() =>
+                        removeFromCartHandler({
+                          product: cartItem.product,
+                          cartIndex: cartIndex,
+                          name: cartItem.name,
+                        })
+                      }>
                       <i className="fas fa-trash"></i>
                     </Button>
                   </Col>

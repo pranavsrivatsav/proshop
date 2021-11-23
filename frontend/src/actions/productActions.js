@@ -22,14 +22,14 @@ export const fetchProducts = () => async (dispatch) => {
 };
 
 export const fetchProductDetails = (id) => async (dispatch) => {
+  const toastId = toastMessage('loading product...', 'loading');
   try {
-    const toastId = toastMessage('loading product...', 'loading');
-
     const { data } = await axios.get(`/api/products/${id}`);
     dispatch({ type: PRODUCT_DETAILS_LOAD, payload: data });
 
     toast.dismiss(toastId);
   } catch (error) {
+    toast.dismiss(toastId);
     const errorMessage =
       error.response && error.response.data.message
         ? error.response.data.message

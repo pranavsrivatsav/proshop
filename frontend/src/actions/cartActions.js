@@ -11,23 +11,23 @@ import toastMessage from '../utils/toastMessage';
 import toast from 'react-hot-toast';
 
 export const fetchCart = () => async (dispatch, getState) => {
-  try {
-    const toastId = toastMessage('Loading your cart...', 'loading');
+  const toastId = toastMessage('Loading your cart...', 'loading');
 
+  try {
     const { data } = await axios.get(`/api/cart`);
 
     dispatch({
       type: CART_LOAD_ITEMS,
       payload: data,
     });
-    toast.dismiss(toastId);
 
+    toast.dismiss(toastId);
     localStorage.setItem(
       'cartItems',
       JSON.stringify(getState().cart.cartItems)
     );
   } catch (error) {
-    toast.dismiss();
+    toast.dismiss(toastId);
     const errorMessage =
       error.response && error.response.data.message
         ? error.response.data.message
@@ -60,7 +60,6 @@ export const addToCart = (product, qty) => async (dispatch, getState) => {
       JSON.stringify(getState().cart.cartItems)
     );
   } catch (error) {
-    toast.dismiss();
     const errorMessage =
       error.response && error.response.data.message
         ? error.response.data.message
@@ -74,12 +73,16 @@ export const addToCart = (product, qty) => async (dispatch, getState) => {
   }
 };
 
-export const removeFromCart = (product) => async (dispatch, getState) => {
+export const removeFromCart = (cartItem) => async (dispatch, getState) => {
+  const toastId = toastMessage('Updating cart...', 'loading');
+
   try {
-    const toastId = toastMessage('Updating cart...', 'loading');
+    const { product, cartIndex, name } = cartItem;
+    const message = `${name} has been removed from the cart`;
+
     dispatch({
       type: CART_REMOVE_ITEM,
-      payload: { product },
+      payload: { cartIndex },
     });
 
     localStorage.setItem(
@@ -88,10 +91,10 @@ export const removeFromCart = (product) => async (dispatch, getState) => {
     );
 
     await axios.delete(`/api/cart/${product}`);
-
     toast.dismiss(toastId);
+    toastMessage(message, 'success');
   } catch (error) {
-    toast.dismiss();
+    toast.dismiss(toastId);
     const errorMessage =
       error.response && error.response.data.message
         ? error.response.data.message
@@ -105,9 +108,12 @@ export const removeFromCart = (product) => async (dispatch, getState) => {
   }
 };
 
-export const updateCart = (product, qty) => async (dispatch, getState) => {
+export const updateCart = (cartItem, qty) => async (dispatch, getState) => {
+  const toastId = toastMessage('Updating cart...', 'loading');
+
   try {
-    const toastId = toastMessage('Updating cart...', 'loading');
+    const { product, cartIndex, name } = cartItem;
+    const message = `Quantity of '${name}' has been changed to '${qty}'`;
 
     const config = {
       headers: {
@@ -117,7 +123,7 @@ export const updateCart = (product, qty) => async (dispatch, getState) => {
 
     dispatch({
       type: CART_UPDATE_ITEM,
-      payload: { product, qty },
+      payload: { cartIndex, qty },
     });
 
     localStorage.setItem(
@@ -127,8 +133,9 @@ export const updateCart = (product, qty) => async (dispatch, getState) => {
 
     await axios.patch(`/api/cart`, { product, qty }, config);
     toast.dismiss(toastId);
+    toastMessage(message, 'success');
   } catch (error) {
-    toast.dismiss();
+    toast.dismiss(toastId);
     const errorMessage =
       error.response && error.response.data.message
         ? error.response.data.message

@@ -9,7 +9,7 @@ import Cart from '../models/cartModel.js';
 const fetchCart = asyncHandler(async (req, res) => {
   const cart = await Cart.findOne({ user: req.user._id });
 
-  if (!cart) res.json({});
+  if (!cart) res.json({ cartItems: [] });
   res.json(await cart.getCartItems());
 });
 
@@ -33,6 +33,7 @@ const addToCart = asyncHandler(async (req, res) => {
     });
 
     await newCart.save();
+    res.json(await newCart.getCartItems());
   } else {
     const newCartItems = cart.cartItems.filter(
       (item) => item.product != product
@@ -43,9 +44,8 @@ const addToCart = asyncHandler(async (req, res) => {
     cart.cartItems = newCartItems;
 
     await cart.save();
+    res.json(await cart.getCartItems());
   }
-
-  res.json(await cart.getCartItems());
 });
 
 // @desc Update cart

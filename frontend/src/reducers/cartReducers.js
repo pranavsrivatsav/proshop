@@ -17,20 +17,18 @@ export const cartReducer = (state = { cartItems: [] }, action) => {
     }
 
     case CART_REMOVE_ITEM: {
-      const { product } = action.payload;
-      const cartItems = state.cartItems.filter(
-        (item) => item.product !== product
-      );
+      const { cartIndex } = action.payload;
+      const cartItems = state.cartItems;
+      cartItems.splice(cartIndex, 1);
 
       return { cartItems };
     }
 
     case CART_UPDATE_ITEM: {
-      const { product, qty } = action.payload;
+      const { cartIndex, qty } = action.payload;
       const cartItems = state.cartItems;
-      const itemIndex = cartItems.findIndex((item) => item.product === product);
 
-      cartItems[itemIndex].qty = qty;
+      cartItems[cartIndex].qty = qty;
 
       return { cartItems };
     }

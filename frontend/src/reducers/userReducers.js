@@ -3,17 +3,7 @@ import {
   USER_DETAILS_REMOVE,
   USER_LOGIN,
   USER_LOGOUT,
-  USER_REGISTER,
 } from '../constants/userConstants';
-
-export const userRegisterReducer = (state = {}, action) => {
-  switch (action.type) {
-    case USER_REGISTER:
-      return { registered: true };
-    default:
-      return state;
-  }
-};
 
 export const userLoginReducer = (state = {}, action) => {
   switch (action.type) {

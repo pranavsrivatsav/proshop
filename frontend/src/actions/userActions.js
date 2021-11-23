@@ -9,13 +9,12 @@ import {
   USER_DETAILS_REMOVE,
   USER_LOGIN,
   USER_LOGOUT,
-  USER_REGISTER,
 } from '../constants/userConstants';
 
 export const login = (email, password) => async (dispatch) => {
-  try {
-    const toastId = toastMessage('Signing in...', 'loading');
+  const toastId = toastMessage('Signing in...', 'loading');
 
+  try {
     const config = {
       headers: {
         'Content-Type': 'application/json',
@@ -41,7 +40,7 @@ export const login = (email, password) => async (dispatch) => {
     toastMessage('Signed in', 'success');
     localStorage.setItem('userInfo', JSON.stringify(data));
   } catch (error) {
-    toast.dismiss();
+    toast.dismiss(toastId);
     const errorMessage =
       error.response && error.response.data.message
         ? error.response.data.message
@@ -53,7 +52,6 @@ export const login = (email, password) => async (dispatch) => {
 
 export const logout = () => async (dispatch) => {
   const toastId = toastMessage('Logging out...', 'loading');
-  console.log(toastId);
   await axios.get('/api/users/logout');
 
   localStorage.removeItem('userInfo');
@@ -65,12 +63,13 @@ export const logout = () => async (dispatch) => {
   toast.dismiss(toastId);
   toastMessage('Logged out', 'success');
 
-  history.push('/login');
+  history.push('/auth');
 };
 
 export const register = (name, email, password) => async (dispatch) => {
+  const toastId = toastMessage('Signing up...', 'loading');
+
   try {
-    const toastId = toastMessage('Signing up...', 'loading');
     console.log(toastId);
 
     const config = {
@@ -86,7 +85,7 @@ export const register = (name, email, password) => async (dispatch) => {
     );
 
     dispatch({
-      type: USER_REGISTER,
+      type: USER_LOGIN,
     });
 
     dispatch({
@@ -95,9 +94,11 @@ export const register = (name, email, password) => async (dispatch) => {
     });
 
     toast.dismiss(toastId);
+    toastMessage('Account created successfully', 'success');
 
     localStorage.setItem('userInfo', JSON.stringify(data));
   } catch (error) {
+    toast.dismiss(toastId);
     const errorMessage =
       error.response && error.response.data.message
         ? error.response.data.message
@@ -108,9 +109,9 @@ export const register = (name, email, password) => async (dispatch) => {
 };
 
 export const UpdateUserProfile = (user) => async (dispatch) => {
-  try {
-    const toastId = toastMessage('Updating Profile...', 'loading');
+  const toastId = toastMessage('Updating Profile...', 'loading');
 
+  try {
     const { data } = await axios.put('/api/users/profile', user);
 
     dispatch({
@@ -122,6 +123,7 @@ export const UpdateUserProfile = (user) => async (dispatch) => {
     toastMessage('Profile updated', 'success');
     localStorage.setItem('userInfo', JSON.stringify(data));
   } catch (error) {
+    toast.dismiss(toastId);
     const errorMessage =
       error.response && error.response.data.message
         ? error.response.data.message
@@ -143,7 +145,7 @@ export const fetchUserDetails =
       });
     } catch (error) {
       if (error.response.status === 401 && redirect) {
-        history.push(`/login?redirect=${redirect}`);
+        history.push(`/auth?redirect=${redirect}`);
       } else {
         const errorMessage =
           error.response && error.response.data.message
