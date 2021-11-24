@@ -54,8 +54,7 @@ export const logout = () => async (dispatch) => {
   const toastId = toastMessage('Logging out...', 'loading');
   await axios.get('/api/users/logout');
 
-  localStorage.removeItem('userInfo');
-  localStorage.removeItem('cartItems');
+  localStorage.clear();
 
   dispatch({ type: USER_DETAILS_REMOVE });
   dispatch({ type: USER_LOGOUT });

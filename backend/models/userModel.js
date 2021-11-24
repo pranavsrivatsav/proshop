@@ -18,6 +18,10 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
+    googleId: {
+      type: String,
+      unique: true,
+    },
     isAdmin: {
       type: Boolean,
       required: true,
@@ -40,12 +44,15 @@ userSchema.methods.matchPassword = async function (enteredPassword) {
 };
 
 userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) {
+  if (!(this.isModified('password') || this.isModified('googleId'))) {
     next();
   }
-
   const salt = await bcrypt.genSalt(8);
-  this.password = await bcrypt.hash(this.password, salt);
+  if (this.isModified('password')) {
+    this.password = await bcrypt.hash(this.password, salt);
+  } else if (this.isModified('googleId')) {
+    this.googleId = await bcrypt.hash(this.googleId, salt);
+  }
 });
 
 const User = model('User', userSchema);

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Row, Col, InputGroup } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
+import { GoogleLogin } from 'react-google-login';
 
 import FormContainer from '../components/FormContainer';
 import Message from '../components/Message';
 import Loader from '../components/Loader';
+import toastMessage from '../utils/toastMessage';
 import { login, register } from '../actions/userActions';
 
 const AuthScreen = ({ location, history }) => {
@@ -59,6 +61,20 @@ const AuthScreen = ({ location, history }) => {
     });
   };
 
+  const googleSuccess = (res) => {
+    const { name, email, googleId } = res.profileObj;
+    if (signUp) {
+      dispatch(register(name, email, googleId));
+    } else {
+      dispatch(login(email, googleId));
+    }
+  };
+
+  const googleFailure = (error) => {
+    console.log('Google sign in failed -', error);
+    toastMessage('Unable to sign in using google. Please try again', 'error');
+  };
+
   return (
     <FormContainer>
       <h1>{signUp ? 'SIGN UP' : 'SIGN IN'}</h1>
@@ -76,7 +92,6 @@ const AuthScreen = ({ location, history }) => {
               onChange={(e) => setName(e.target.value)}></Form.Control>
           </Form.Group>
         )}
-
         <Form.Group controlId="email">
           <Form.Label>Email Address</Form.Label>
           <Form.Control
@@ -85,7 +100,6 @@ const AuthScreen = ({ location, history }) => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}></Form.Control>
         </Form.Group>
-
         <Form.Group controlId="password">
           <Form.Label>Password</Form.Label>
           <InputGroup>
@@ -107,7 +121,6 @@ const AuthScreen = ({ location, history }) => {
             )}
           </InputGroup>
         </Form.Group>
-
         {signUp && (
           <Form.Group controlId="confirmPassword">
             <Form.Label>Confirm Password</Form.Label>
@@ -121,9 +134,28 @@ const AuthScreen = ({ location, history }) => {
           </Form.Group>
         )}
 
-        <Button type="submit" variant="primary">
+        <Button type="submit" variant="primary" block>
           {signUp ? 'Sign Up' : 'Sign in'}
         </Button>
+
+        <GoogleLogin
+          /* eslint-disable-next-line no-undef */
+          clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}
+          render={(renderProps) => (
+            <Button
+              block
+              variant="info"
+              onClick={renderProps.onClick}
+              disabled={renderProps.disabled}>
+              <span>
+                <i className="fab fa-google"></i> &nbsp;Sign in with Google
+              </span>
+            </Button>
+          )}
+          onSuccess={googleSuccess}
+          onFailure={googleFailure}
+          cookiePolicy={'single_host_origin'}
+        />
       </Form>
 
       <Row className="py-3">
