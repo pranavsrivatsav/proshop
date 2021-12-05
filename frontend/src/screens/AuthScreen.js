@@ -7,7 +7,7 @@ import FormContainer from '../components/FormContainer';
 import Message from '../components/Message';
 import Loader from '../components/Loader';
 import toastMessage from '../utils/toastMessage';
-import { login, register } from '../actions/userActions';
+import { login, SocialLogin, register } from '../actions/userActions';
 
 const AuthScreen = ({ location, history }) => {
   const [name, setName] = useState('');
@@ -62,12 +62,12 @@ const AuthScreen = ({ location, history }) => {
   };
 
   const googleSuccess = (res) => {
+    console.log(res);
     const { name, email, googleId } = res.profileObj;
-    if (signUp) {
-      dispatch(register(name, email, googleId));
-    } else {
-      dispatch(login(email, googleId));
-    }
+
+    dispatch(
+      SocialLogin(email, { googleId, tokenId: res.tokenId, name }, 'google')
+    );
   };
 
   const googleFailure = (error) => {

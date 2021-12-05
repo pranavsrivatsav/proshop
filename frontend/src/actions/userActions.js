@@ -50,6 +50,45 @@ export const login = (email, password) => async (dispatch) => {
   }
 };
 
+export const SocialLogin = (email, id, platform) => async (dispatch) => {
+  const toastId = toastMessage('Signing in...', 'loading');
+
+  try {
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+
+    const { data } = await axios.post(
+      `/api/users/login?platform=${platform}`,
+      { email, id },
+      config
+    );
+
+    dispatch({
+      type: USER_LOGIN,
+    });
+
+    dispatch({
+      type: USER_DETAILS_LOAD,
+      payload: data,
+    });
+
+    toast.dismiss(toastId);
+    toastMessage('Signed in', 'success');
+    localStorage.setItem('userInfo', JSON.stringify(data));
+  } catch (error) {
+    toast.dismiss(toastId);
+    const errorMessage =
+      error.response && error.response.data.message
+        ? error.response.data.message
+        : error.response.data;
+
+    toastMessage(errorMessage, 'error');
+  }
+};
+
 export const logout = () => async (dispatch) => {
   const toastId = toastMessage('Logging out...', 'loading');
   await axios.get('/api/users/logout');
@@ -69,8 +108,6 @@ export const register = (name, email, password) => async (dispatch) => {
   const toastId = toastMessage('Signing up...', 'loading');
 
   try {
-    console.log(toastId);
-
     const config = {
       headers: {
         'Content-Type': 'application/json',
