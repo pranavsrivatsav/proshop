@@ -37,23 +37,35 @@ export const fetchCart = () => async (dispatch, getState) => {
   }
 };
 
-export const addToCart = (product, qty) => async (dispatch, getState) => {
+export const addToCart = (products) => async (dispatch, getState) => {
   try {
-    const config = {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    };
+    const { userLogin, cart } = getState();
 
-    const { data } = await axios.put(`/api/cart`, { product, qty }, config);
+    let data;
+
+    if (!userLogin.loggedIn) {
+      const cartItems = cart.cartItems.concat(products);
+      data = { cartItems };
+    } else {
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
+
+      const response = await axios.put(`/api/cart`, { products }, config);
+      data = response.data;
+    }
 
     dispatch({
       type: CART_ADD_ITEM,
       payload: data,
     });
 
-    const productName = data.cartItems[data.cartItems.length - 1].name;
-    toastMessage(`${productName} - Added to cart`, 'success');
+    if (products.length === 1) {
+      const productName = data.cartItems[data.cartItems.length - 1].name;
+      toastMessage(`${productName} - Added to cart`, 'success');
+    }
 
     localStorage.setItem(
       'cartItems',
@@ -85,12 +97,11 @@ export const removeFromCart = (cartItem) => async (dispatch, getState) => {
       payload: { cartIndex },
     });
 
-    localStorage.setItem(
-      'cartItems',
-      JSON.stringify(getState().cart.cartItems)
-    );
+    const { userLogin, cart } = getState();
+    localStorage.setItem('cartItems', JSON.stringify(cart.cartItems));
 
-    await axios.delete(`/api/cart/${product}`);
+    userLogin.loggedIn && (await axios.delete(`/api/cart/${product}`));
+
     toast.dismiss(toastId);
     toastMessage(message, 'success');
   } catch (error) {
@@ -126,12 +137,11 @@ export const updateCart = (cartItem, qty) => async (dispatch, getState) => {
       payload: { cartIndex, qty },
     });
 
-    localStorage.setItem(
-      'cartItems',
-      JSON.stringify(getState().cart.cartItems)
-    );
+    const { userLogin, cart } = getState();
+    localStorage.setItem('cartItems', JSON.stringify(cart.cartItems));
 
-    await axios.patch(`/api/cart`, { product, qty }, config);
+    userLogin.loggedIn &&
+      (await axios.patch(`/api/cart`, { product, qty }, config));
     toast.dismiss(toastId);
     toastMessage(message, 'success');
   } catch (error) {

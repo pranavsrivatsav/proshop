@@ -17,11 +17,14 @@ import { fetchCart, removeFromCart, updateCart } from '../actions/cartActions';
 const CartScreen = ({ history }) => {
   const dispatch = useDispatch();
 
-  const cart = useSelector((state) => state.cart);
+  const { cart, userLogin } = useSelector((state) => state);
+  const { loggedIn } = userLogin;
   const { cartItems, reload } = cart;
 
   useEffect(() => {
-    dispatch(fetchCart());
+    if (loggedIn) {
+      dispatch(fetchCart());
+    }
   }, [reload]);
 
   const removeFromCartHandler = (id) => {

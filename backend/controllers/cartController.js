@@ -1,5 +1,4 @@
 import asyncHandler from 'express-async-handler';
-import mongoose from 'mongoose';
 
 import Cart from '../models/cartModel.js';
 
@@ -17,33 +16,38 @@ const fetchCart = asyncHandler(async (req, res) => {
 // @route PUT /api/cart
 // @access private
 const addToCart = asyncHandler(async (req, res) => {
-  const { product, qty } = req.body;
+  const { products } = req.body;
 
-  const newCartItem = {
-    product: mongoose.Types.ObjectId(product),
-    qty,
-  };
+  // const newCartItem = {
+  //   product: mongoose.Types.ObjectId(product),
+  //   qty,
+  // };
 
   const cart = await Cart.findOne({ user: req.user._id });
 
   if (!cart) {
     const newCart = await Cart.create({
       user: req.user._id,
-      cartItems: [newCartItem],
+      cartItems: products,
     });
 
     await newCart.save();
     res.json(await newCart.getCartItems());
   } else {
-    const newCartItems = cart.cartItems.filter(
-      (item) => item.product != product
+    const productsMap = products.reduce((map, product) => {
+      map[product.product] = product.qty;
+      return map;
+    }, {});
+
+    let newCartItems = cart.cartItems.filter(
+      (item) => !productsMap[item.product]
     );
 
-    newCartItems.push(newCartItem);
-
+    newCartItems = newCartItems.concat(products);
     cart.cartItems = newCartItems;
 
     await cart.save();
+
     res.json(await cart.getCartItems());
   }
 });

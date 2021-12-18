@@ -21,8 +21,10 @@ const ProductScreen = ({ match, history }) => {
 
   const dispatch = useDispatch();
 
-  const productDetails = useSelector((state) => state.productDetails);
-  const cartItems = useSelector((state) => state.cart.cartItems);
+  const { productDetails, cart, userLogin } = useSelector((state) => state);
+
+  const { cartItems } = cart;
+  const { loggedIn } = userLogin;
 
   const { product } = productDetails;
   let isAddedToCart = cartItems.find(
@@ -36,7 +38,22 @@ const ProductScreen = ({ match, history }) => {
   const addToCartHandler = () => {
     if (!isAddedToCart) {
       isAddedToCart = true;
-      dispatch(addToCart(match.params.id, qty));
+      if (!loggedIn) {
+        dispatch(
+          addToCart([
+            {
+              product: product._id,
+              name: product.name,
+              image: product.image,
+              price: product.price,
+              maxQty: Math.min(product.countInStock, product.maxQty),
+              qty: Number(qty),
+            },
+          ])
+        );
+      } else {
+        dispatch(addToCart([{ product, qty }]));
+      }
     }
     history.push('/cart?tracker=product');
   };
