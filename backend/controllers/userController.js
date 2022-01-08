@@ -155,9 +155,58 @@ const UpdateUserProfile = asyncHandler(async (req, res) => {
   });
 });
 
+// @desc Create user address
+// @route POST /api/users/address
+// @access private
 const addAddress = asyncHandler(async (req, res) => {
   const user = req.user;
   user.addresses.push(req.body.address);
+  const updatedUser = await user.save();
+
+  res.json({
+    user: updatedUser,
+  });
+});
+
+// @desc Edit user address
+// @route PUT /api/users/address
+// @access private
+const editAddress = asyncHandler(async (req, res) => {
+  const user = req.user;
+  const addressId = req.params.id;
+  const addressIndex = user.addresses.findIndex(
+    (address) => address._id.toString() === addressId
+  );
+
+  if (addressIndex < 0) {
+    res.status(404);
+    throw new Error('Address not found');
+  }
+
+  user.addresses[addressIndex] = req.body.address;
+  const updatedUser = await user.save();
+
+  res.json({
+    user: updatedUser,
+  });
+});
+
+// @desc Delete user address
+// @route delete /api/users/address
+// @access private
+const deleteAddress = asyncHandler(async (req, res) => {
+  const user = req.user;
+  const addressId = req.params.id;
+  const addressIndex = user.addresses.findIndex(
+    (address) => address._id.toString() === addressId
+  );
+
+  if (addressIndex < 0) {
+    res.status(404);
+    throw new Error('Address not found');
+  }
+
+  user.addresses.splice(addressIndex, 1);
   const updatedUser = await user.save();
 
   res.json({
@@ -172,4 +221,6 @@ export {
   getUserProfile,
   UpdateUserProfile,
   addAddress,
+  editAddress,
+  deleteAddress,
 };
