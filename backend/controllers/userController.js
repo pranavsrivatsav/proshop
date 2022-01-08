@@ -24,12 +24,14 @@ const loginUser = asyncHandler(async (req, res) => {
     if (user && (await user.matchPassword(password))) {
       const token = generateToken(user._id);
 
-      res.cookie('token', token, { httpOnly: true }).json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        isAdmin: user.isAdmin,
-      });
+      res
+        .cookie('token', token, { httpOnly: true, maxAge: 7 * 60 * 60 * 1000 })
+        .json({
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          isAdmin: user.isAdmin,
+        });
     } else {
       res.status(401);
       throw new Error('Invalid Email or Password');
@@ -153,10 +155,21 @@ const UpdateUserProfile = asyncHandler(async (req, res) => {
   });
 });
 
+const addAddress = asyncHandler(async (req, res) => {
+  const user = req.user;
+  user.addresses.push(req.body.address);
+  const updatedUser = await user.save();
+
+  res.json({
+    user: updatedUser,
+  });
+});
+
 export {
   loginUser,
   logoutUser,
   registerUser,
   getUserProfile,
   UpdateUserProfile,
+  addAddress,
 };

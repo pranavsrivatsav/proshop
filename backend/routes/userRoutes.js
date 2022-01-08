@@ -5,6 +5,7 @@ import {
   getUserProfile,
   registerUser,
   UpdateUserProfile,
+  addAddress,
 } from '../controllers/userController.js';
 import auth from '../middleware/authMiddleware.js';
 
@@ -19,5 +20,6 @@ router.post('/', registerUser);
 router.get('/logout', auth, logoutUser);
 router.get('/profile', auth, getUserProfile);
 router.put('/profile', auth, UpdateUserProfile);
+router.post('/address', auth, addAddress);
 
 export default router;

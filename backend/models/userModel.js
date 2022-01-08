@@ -1,6 +1,8 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
+import addressSchema from './addressModel.js';
+
 const { Schema, model } = mongoose;
 
 const userSchema = new Schema(
@@ -18,6 +20,7 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
+    addresses: [addressSchema],
     googleId: {
       type: String,
       unique: true,
