@@ -21,6 +21,9 @@ const userSchema = new Schema(
       required: true,
     },
     addresses: [addressSchema],
+    defaultAddress: {
+      type: mongoose.Types.ObjectId,
+    },
     googleId: {
       type: String,
       unique: true,

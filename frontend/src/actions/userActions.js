@@ -96,17 +96,31 @@ export const SocialLogin =
 
 export const logout = () => async (dispatch) => {
   const toastId = toastMessage('Logging out...', 'loading');
-  await axios.get('/api/users/logout');
 
-  localStorage.clear();
+  try {
+    await axios.get('/api/users/logout');
 
-  dispatch({ type: USER_DETAILS_REMOVE });
-  dispatch({ type: USER_LOGOUT });
+    dispatch({ type: USER_DETAILS_REMOVE });
+    dispatch({ type: USER_LOGOUT });
 
-  toast.dismiss(toastId);
-  toastMessage('Logged out', 'success');
+    toast.dismiss(toastId);
+    toastMessage('Logged out', 'success');
 
-  history.push('/auth');
+    localStorage.clear();
+    history.push('/auth');
+    window.location.reload();
+  } catch (error) {
+    const { data, status } = error.response;
+    console.error(data.message);
+    if (status === 401) {
+      // Clear local storage
+      localStorage.clear();
+      // push to auth screen
+      history.push('/auth');
+      // reload page to clear redux
+      window.location.reload();
+    }
+  }
 };
 
 export const register = (name, email, password) => async (dispatch) => {
@@ -186,6 +200,9 @@ export const fetchUserDetails =
       });
     } catch (error) {
       if (error.response.status === 401 && redirect) {
+        // Handling timed out cookie - so clearing redux of userdata
+        dispatch({ type: USER_LOGOUT });
+        dispatch({ type: USER_DETAILS_REMOVE });
         history.push(`/auth?redirect=${redirect}`);
       } else {
         const errorMessage =

@@ -2,12 +2,15 @@ import {
   USER_DETAILS_LOAD,
   USER_DETAILS_REMOVE,
   USER_LOGIN,
+  USER_LOGOUT,
 } from '../constants/userConstants';
 
 export const userLoginReducer = (state = {}, action) => {
   switch (action.type) {
     case USER_LOGIN:
       return { loggedIn: true };
+    case USER_LOGOUT:
+      return { loggedIn: false };
     default:
       return state;
   }

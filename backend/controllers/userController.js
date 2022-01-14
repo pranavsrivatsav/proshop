@@ -160,7 +160,13 @@ const UpdateUserProfile = asyncHandler(async (req, res) => {
 // @access private
 const addAddress = asyncHandler(async (req, res) => {
   const user = req.user;
+
+  // Step 1: Push Address into addresses array
   user.addresses.push(req.body.address);
+
+  // Step 2: If isDefault set to true, set defaultAddress field to pushed address object id
+  if (req.body.isDefault === true)
+    user.defaultAddress = user.addresses[user.addresses.length - 1]._id;
   const updatedUser = await user.save();
 
   res.json({
@@ -174,16 +180,24 @@ const addAddress = asyncHandler(async (req, res) => {
 const editAddress = asyncHandler(async (req, res) => {
   const user = req.user;
   const addressId = req.params.id;
+
+  // Step 1: Get address index by given address objectid
   const addressIndex = user.addresses.findIndex(
     (address) => address._id.toString() === addressId
   );
 
+  // Step 1.1: If address, not found throw error
   if (addressIndex < 0) {
     res.status(404);
     throw new Error('Address not found');
   }
 
+  // Step 2: Set the updated address at the index
   user.addresses[addressIndex] = req.body.address;
+
+  // Step 3: If isDefault set to true, set defaultAddress field to the edited address object id
+  if (req.body.isDefault === true)
+    user.defaultAddress = user.addresses[addressIndex]._id;
   const updatedUser = await user.save();
 
   res.json({
@@ -197,16 +211,23 @@ const editAddress = asyncHandler(async (req, res) => {
 const deleteAddress = asyncHandler(async (req, res) => {
   const user = req.user;
   const addressId = req.params.id;
+
+  // Step 1: Find address to be deleted
   const addressIndex = user.addresses.findIndex(
     (address) => address._id.toString() === addressId
   );
 
+  // Step 1.1: If address not found, throw error
   if (addressIndex < 0) {
     res.status(404);
     throw new Error('Address not found');
   }
 
+  // Step 2: Remove address
   user.addresses.splice(addressIndex, 1);
+
+  // Step 3: if deleted address is default - make default address null
+  if (user.defaultAddress.toString() === addressId) user.defaultAddress = null;
   const updatedUser = await user.save();
 
   res.json({

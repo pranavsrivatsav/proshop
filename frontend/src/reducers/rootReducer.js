@@ -4,6 +4,7 @@ import initialState from '../initialState';
 import { productListReducer, productDetailsReducer } from './productReducers';
 import { cartReducer } from './cartReducers';
 import { userLoginReducer, userDetailsReducer } from './userReducers';
+import { USER_LOGOUT } from '../constants/userConstants';
 
 const appReducer = combineReducers({
   productList: productListReducer,
@@ -15,10 +16,9 @@ const appReducer = combineReducers({
 
 const rootReducer = (state, action) => {
   switch (action.type) {
-    case 'USER_LOGOUT':
+    case USER_LOGOUT:
       console.log(state.products);
       return appReducer({ products: state.products, ...initialState }, action);
-    // return appReducer(undefined, action);
     default:
       return appReducer(state, action);
   }

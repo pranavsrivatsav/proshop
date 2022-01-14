@@ -155,6 +155,8 @@ const AuthScreen = ({ location, history }) => {
           onSuccess={googleSuccess}
           onFailure={googleFailure}
           cookiePolicy={'single_host_origin'}
+          /* force account selection on every login */
+          prompt="select_account"
         />
       </Form>
 

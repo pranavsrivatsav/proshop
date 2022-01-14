@@ -8,7 +8,7 @@ const localStorageUserInfo = localStorage.getItem('userInfo')
 
 const initialState = {
   cart: { cartItems: localStorageCartItems },
-  userLogin: { loggedIn: false },
+  userLogin: { loggedIn: localStorageUserInfo ? true : false },
   user: { details: localStorageUserInfo },
 };
 
