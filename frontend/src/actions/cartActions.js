@@ -10,6 +10,8 @@ import {
 import toastMessage from '../utils/toastMessage';
 import toast from 'react-hot-toast';
 
+import errorHandler from '../utils/errorHandler';
+
 export const fetchCart = () => async (dispatch, getState) => {
   const toastId = toastMessage('Loading your cart...', 'loading');
 
@@ -27,13 +29,7 @@ export const fetchCart = () => async (dispatch, getState) => {
       JSON.stringify(getState().cart.cartItems)
     );
   } catch (error) {
-    toast.dismiss(toastId);
-    const errorMessage =
-      error.response && error.response.data.message
-        ? error.response.data.message
-        : error.response.data;
-
-    toastMessage(errorMessage, 'error');
+    errorHandler(error, dispatch, toastId);
   }
 };
 
@@ -72,12 +68,7 @@ export const addToCart = (products) => async (dispatch, getState) => {
       JSON.stringify(getState().cart.cartItems)
     );
   } catch (error) {
-    const errorMessage =
-      error.response && error.response.data.message
-        ? error.response.data.message
-        : error.response.data;
-
-    toastMessage(errorMessage, 'error');
+    errorHandler(error);
 
     dispatch({
       type: CART_RELOAD,
@@ -105,13 +96,7 @@ export const removeFromCart = (cartItem) => async (dispatch, getState) => {
     toast.dismiss(toastId);
     toastMessage(message, 'success');
   } catch (error) {
-    toast.dismiss(toastId);
-    const errorMessage =
-      error.response && error.response.data.message
-        ? error.response.data.message
-        : error.response.data;
-
-    toastMessage(errorMessage, 'error');
+    errorHandler(error, dispatch, toastId);
 
     dispatch({
       type: CART_RELOAD,
@@ -145,13 +130,7 @@ export const updateCart = (cartItem, qty) => async (dispatch, getState) => {
     toast.dismiss(toastId);
     toastMessage(message, 'success');
   } catch (error) {
-    toast.dismiss(toastId);
-    const errorMessage =
-      error.response && error.response.data.message
-        ? error.response.data.message
-        : error.response.data;
-
-    toastMessage(errorMessage, 'error');
+    errorHandler(error, dispatch, toastId);
 
     dispatch({
       type: CART_RELOAD,

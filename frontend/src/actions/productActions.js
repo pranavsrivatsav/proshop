@@ -6,18 +6,14 @@ import {
 } from '../constants/productConstants';
 
 import toastMessage from '../utils/toastMessage';
+import errorHandler from '../utils/errorHandler';
 
 export const fetchProducts = () => async (dispatch) => {
   try {
     const { data } = await axios.get('/api/products');
     dispatch({ type: PRODUCT_LIST_LOAD, payload: data });
   } catch (error) {
-    const errorMessage =
-      error.response && error.response.data.message
-        ? error.response.data.message
-        : error.message;
-
-    toastMessage(errorMessage, 'error');
+    errorHandler(error, dispatch);
   }
 };
 
@@ -29,12 +25,6 @@ export const fetchProductDetails = (id) => async (dispatch) => {
 
     toast.dismiss(toastId);
   } catch (error) {
-    toast.dismiss(toastId);
-    const errorMessage =
-      error.response && error.response.data.message
-        ? error.response.data.message
-        : error.message;
-
-    toastMessage(errorMessage, 'error');
+    errorHandler(error, dispatch, toastId);
   }
 };

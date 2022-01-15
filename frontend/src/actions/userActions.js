@@ -3,6 +3,7 @@ import history from '../history';
 import toast from 'react-hot-toast';
 
 import toastMessage from '../utils/toastMessage';
+import errorHandler from '../utils/errorHandler';
 
 import {
   USER_DETAILS_LOAD,
@@ -43,13 +44,7 @@ export const login = (email, password) => async (dispatch, getState) => {
     localStorage.setItem('userInfo', JSON.stringify(data));
     dispatch(addToCart(getState().cart.cartItems));
   } catch (error) {
-    toast.dismiss(toastId);
-    const errorMessage =
-      error.response && error.response.data.message
-        ? error.response.data.message
-        : error.response.data;
-
-    toastMessage(errorMessage, 'error');
+    errorHandler(error, dispatch, toastId);
   }
 };
 
@@ -84,13 +79,7 @@ export const SocialLogin =
       localStorage.setItem('userInfo', JSON.stringify(data));
       dispatch(addToCart(getState().cart.cartItems));
     } catch (error) {
-      toast.dismiss(toastId);
-      const errorMessage =
-        error.response && error.response.data.message
-          ? error.response.data.message
-          : error.response.data;
-
-      toastMessage(errorMessage, 'error');
+      errorHandler(error, dispatch, toastId);
     }
   };
 
@@ -110,16 +99,7 @@ export const logout = () => async (dispatch) => {
     history.push('/auth');
     window.location.reload();
   } catch (error) {
-    const { data, status } = error.response;
-    console.error(data.message);
-    if (status === 401) {
-      // Clear local storage
-      localStorage.clear();
-      // push to auth screen
-      history.push('/auth');
-      // reload page to clear redux
-      window.location.reload();
-    }
+    errorHandler(error, dispatch);
   }
 };
 
@@ -153,13 +133,7 @@ export const register = (name, email, password) => async (dispatch) => {
 
     localStorage.setItem('userInfo', JSON.stringify(data));
   } catch (error) {
-    toast.dismiss(toastId);
-    const errorMessage =
-      error.response && error.response.data.message
-        ? error.response.data.message
-        : error.response.data;
-
-    toastMessage(errorMessage, 'error');
+    errorHandler(error, dispatch, toastId);
   }
 };
 
@@ -178,13 +152,7 @@ export const UpdateUserProfile = (user) => async (dispatch) => {
     toastMessage('Profile updated', 'success');
     localStorage.setItem('userInfo', JSON.stringify(data));
   } catch (error) {
-    toast.dismiss(toastId);
-    const errorMessage =
-      error.response && error.response.data.message
-        ? error.response.data.message
-        : error.response.data;
-
-    toastMessage(errorMessage, 'error');
+    errorHandler(error, dispatch, toastId);
   }
 };
 
@@ -199,18 +167,6 @@ export const fetchUserDetails =
         payload: data,
       });
     } catch (error) {
-      if (error.response.status === 401 && redirect) {
-        // Handling timed out cookie - so clearing redux of userdata
-        dispatch({ type: USER_LOGOUT });
-        dispatch({ type: USER_DETAILS_REMOVE });
-        history.push(`/auth?redirect=${redirect}`);
-      } else {
-        const errorMessage =
-          error.response && error.response.data.message
-            ? error.response.data.message
-            : error.response.data;
-
-        toastMessage(errorMessage, 'error');
-      }
+      errorHandler(error, dispatch, null, redirect, { showError: false });
     }
   };
